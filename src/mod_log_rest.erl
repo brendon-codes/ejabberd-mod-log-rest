@@ -99,14 +99,16 @@ write_packet(From, To, Packet, Host) ->
            {config, Result} ->
            Result
        end,
-    Format = Config#config.format,
-    {Subject, Body} = {case xml:get_path_s(Packet, [{elem, "subject"}, cdata]) of
-               false ->
-                   "";
-               Text ->
-                   escape(Format, Text)
-               end,
-               escape(Format, xml:get_path_s(Packet, [{elem, "body"}, cdata]))},
+    {Subject, Body} =
+    {
+        case xml:get_path_s(Packet, [{elem, "subject"}, cdata]) of
+            false ->
+                "";
+            Text ->
+                Text
+        end,
+        xml:get_path_s(Packet, [{elem, "body"}, cdata])
+    },
     case Subject ++ Body of
         "" -> %% don't log empty messages
             ?DEBUG("not logging empty message from ~s",[jlib:jid_to_string(From)]),
@@ -180,17 +182,6 @@ close_previous_logfile(FilenameTemplate, Format, Date) ->
         ok
     end.
 
-escape(text, Text) ->
-    Text;
-escape(_, "") ->
-    "";
-escape(html, [$< | Text]) ->
-    "&lt;" ++ escape(html, Text);
-escape(html, [$& | Text]) ->
-    "&amp;" ++ escape(html, Text);
-escape(html, [Char | Text]) ->
-    [Char | escape(html, Text)].
-
 
 % return the number of occurence of Word in String
 count(String, Word) ->
@@ -222,37 +213,3 @@ template(text, date) ->
 template(text, footer) ->
     "---- End ----~n";
 
-template(html, extension) ->
-    ".html";
-template(html, title) ->
-    template(text, title);
-template(html, header) ->
-    "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">~n"++
-    "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /><title>~s</title>"++
-    css()++
-    "</head><body>~n<h1>~s</h1>~n";
-template(html, subject) ->
-    "<div class=\"subject\"><span>Subject:</span> ~s</div>";
-template(html, message) ->
-    "<div class=\"message~w\"><span class=\"date\">~~s</span> <span class=\"jid\">~~s</span>/<span class=\"ressource\">~~s</span> -&gt; <span class=\"jid\">~~s</span>/<span class=\"ressource\">~~s</span>~~n<span class=\"messagetext\">~~s</span></div>~~n";
-template(html, message1) ->
-    io_lib:format(template(html, message), [1]);
-template(html, message2) ->
-    io_lib:format(template(html, message), [2]);
-template(html, date) ->
-    "~p-~2.2.0w-~2.2.0w ~2.2.0w:~2.2.0w:~2.2.0w";
-template(html, footer) ->
-    "</body></html>".
-
-css() ->
-    "<style type=\"text/css\">~n<!--~n"++
-    "h1 {border-bottom: #224466 solid 3pt; margin-left: 20pt; color: #336699; font-size: 1.5em; font-weight: bold; font-family: sans-serif; letter-spacing: 0.1empx; text-decoration: none;}~n"++
-    ".message1 {border: black solid 1pt; background-color: #d7e4f1; margin: 0.3em}~n"++
-    ".message2 {border: black solid 1pt; background-color: #b39ccb; margin: 0.3em}~n"++
-    ".subject {margin-left: 0.5em}~n"++
-    ".subject span {font-weight: bold;}~n"++
-    ".date {color: #663399; font-size: 0.8em; font-weight: bold; font-family: sans-serif; letter-spacing: 0.05em; margin-left:0.5em; margin-top:20px;}~n"++
-    ".jid {color: #336699; font-weight: bold; font-size: 1em; }~n"++
-    ".ressource {color: #336699; }~n"++
-    ".messagetext {color: black; margin: 0.2em; clear: both; display: block;}~n"++
-    "//-->~n</style>~n".
