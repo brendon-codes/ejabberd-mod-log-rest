@@ -1,12 +1,11 @@
 %%%----------------------------------------------------------------------
-%%% File    : mod_log_chat.erl
-%%% Author  : Jérôme Sautret <jerome.sautret@process-one.net>
-%%% Purpose : Log 2 ways chat messages in files
-%%% Id      : $Id: mod_log_chat.erl 412 2007-11-15 10:10:09Z mremond $
+%%% File    : mod_log_rest.erl
+%%% Author  : Brendon Crawford <brendon@last.vc>
+%%% Purpose : Log 2 ways chat messages to a REST service
 %%%----------------------------------------------------------------------
 
--module(mod_log_chat).
--author('jerome.sautret@process-one.net').
+-module(mod_log_rest).
+-author('brendon@last.vc').
 
 -behaviour(gen_mod).
 
