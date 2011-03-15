@@ -68,7 +68,6 @@ init(Config)->
     ?DEBUG("Starting ~p with config ~p~n", [?MODULE, Config]),
     loop(Config).
 
-
 %%
 %% Loop
 %%
@@ -159,16 +158,19 @@ write_packet(From, To, Packet, Host) ->
                     _ ->
                         Subject ++ Body
                 end,
+            send_to_rest(Url, FromJid, ToJid, MessageText)
     end.
 
 %%
-%% Return the number of occurence of Word in String
+%% Send to rest
 %%
-count(String, Word) ->
-    case string:str(String, Word) of
-    0 ->
-        0;
-    N ->
-        1+count(string:substr(String, N+length(Word)), Word)
-    end.
+send_to_rest(Url, FromJid, ToJid, MessageText) ->
+    ?DEBUG("Args ~s", [Url, FromJid, ToJid, MessageText]),
+    http:request(post, {Url, [],
+                        "application/x-www-form-urlencoded",
+                        "hl=en&q=erlang&btnG=Google+Search&meta="},
+                 [], [{sync, false}]),
+    ok.
+
+
 
