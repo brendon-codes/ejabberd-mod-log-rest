@@ -13,7 +13,9 @@
          init/1,
          stop/1,
          log_packet_send/3,
-         log_packet_receive/4]).
+         log_packet_receive/4,
+         async_response/0
+]).
 
 %-define(ejabberd_debug, true).
 
@@ -21,7 +23,7 @@
 -include("jlib.hrl").
 
 -define(PROCNAME, ?MODULE).
--define(DEFAULT_URL, "http://localhost/messages/add").
+-define(DEFAULT_URL, "http://localhost:9091/messages/add").
 
 -record(config, {url=?DEFAULT_URL}).
 
@@ -166,15 +168,36 @@ write_packet(From, To, Packet, Host) ->
     end.
 
 %%
+%% Async response
+%%
+%% Handles all async responses from iBrowse
+%%
+async_response() ->
+    receive
+        {ibrowse_async_headers, ReqId, _, _} ->
+            ibrowse:stream_next(ReqId),
+            ok;
+        {ibrowse_async_response, ReqId, _} ->
+            ibrowse:stream_next(ReqId),
+            ok;
+        {ibrowse_async_response_end, ReqId} ->
+            ibrowse:stream_close(ReqId),
+            ok;
+        _ ->
+            ok
+    end.
+
+%%
 %% Send to rest
 %%
 send_to_rest(Url, FromJid, ToJid, MessageText) ->
     ?DEBUG("Args ~s", [Url, FromJid, ToJid, MessageText]),
+    Res = spawn(?MODULE, async_response, []),
     ibrowse:send_req(Url,
                      [{"Content-Type","application/x-www-form-urlencoded"}],
                      post, 
                      mochiweb_util:urlencode([{body, MessageText}]),
-                     [{stream_to, self()}]),
+                     [{stream_to, Res}]),
     ok.
 
 
