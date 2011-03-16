@@ -184,15 +184,16 @@ async_response() ->
 %% Send to rest
 %%
 send_to_rest(Url, FromJid, ToJid, Subject, Body) ->
-    ?DEBUG("Args ~s", [Url, FromJid, ToJid, Subject, Body]),
     Res = spawn(?MODULE, async_response, []),
+    Params = mochiweb_util:urlencode([{body, Body},
+                                      {from_jid, FromJid},
+                                      {to_jid, ToJid},
+                                      {subject, Subject}]),
+    ?DEBUG("Args ~p~n", [Params]),
     ibrowse:send_req(Url,
                      [{"Content-Type","application/x-www-form-urlencoded"}],
                      post, 
-                     mochiweb_util:urlencode([{from_jid, FromJid},
-                                              {to_jid, ToJid},
-                                              {subject, Subject},
-                                              {body, Body}]),
+                     Params,
                      [{stream_to, Res}]),
     ok.
 
