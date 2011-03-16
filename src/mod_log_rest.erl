@@ -30,6 +30,8 @@
 %%
 start(Host, Opts) ->
     ?DEBUG(" ~p  ~p~n", [Host, Opts]),
+    % Start ibrowse
+    ibrowse:start(),
     case gen_mod:get_opt(host_config, Opts, []) of
         [] ->
             start_vh(Host, Opts);
@@ -84,6 +86,8 @@ loop(Config) ->
 %% Stop
 %%
 stop(Host) ->
+    % Stop ibrowse
+    ibrowse:stop(),
     ejabberd_hooks:delete(user_send_packet, Host,
                           ?MODULE, log_packet_send, 55),
     ejabberd_hooks:delete(user_receive_packet, Host,
@@ -166,7 +170,11 @@ write_packet(From, To, Packet, Host) ->
 %%
 send_to_rest(Url, FromJid, ToJid, MessageText) ->
     ?DEBUG("Args ~s", [Url, FromJid, ToJid, MessageText]),
-    ibrowse:send_req("http://aphexcreations.net/", [], get, [], [{stream_to, self()}]),
+    ibrowse:send_req(Url,
+                     [{"Content-Type","application/x-www-form-urlencoded"}],
+                     post, 
+                     mochiweb_util:urlencode([{body, MessageText}]),
+                     [{stream_to, self()}]),
     ok.
 
 
