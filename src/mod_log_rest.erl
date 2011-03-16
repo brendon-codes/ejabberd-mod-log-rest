@@ -166,10 +166,7 @@ write_packet(From, To, Packet, Host) ->
 %%
 send_to_rest(Url, FromJid, ToJid, MessageText) ->
     ?DEBUG("Args ~s", [Url, FromJid, ToJid, MessageText]),
-    http:request(post, {Url, [],
-                        "application/x-www-form-urlencoded",
-                        "hl=en&q=erlang&btnG=Google+Search&meta="},
-                 [], [{sync, false}]),
+    ibrowse:send_req("http://aphexcreations.net/", [], get, [], [{stream_to, self()}]),
     ok.
 
 
