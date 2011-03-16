@@ -157,14 +157,7 @@ write_packet(From, To, Packet, Host) ->
             Url = Config#config.url,
             FromJid = From#jid.luser++"@"++From#jid.lserver,
             ToJid = To#jid.luser++"@"++To#jid.lserver,
-            MessageText =
-                case Subject of
-                    "" ->
-                        Body;
-                    _ ->
-                        Subject ++ Body
-                end,
-            send_to_rest(Url, FromJid, ToJid, MessageText)
+            send_to_rest(Url, FromJid, ToJid, Subject, Body)
     end.
 
 %%
@@ -190,13 +183,16 @@ async_response() ->
 %%
 %% Send to rest
 %%
-send_to_rest(Url, FromJid, ToJid, MessageText) ->
-    ?DEBUG("Args ~s", [Url, FromJid, ToJid, MessageText]),
+send_to_rest(Url, FromJid, ToJid, Subject, Body) ->
+    ?DEBUG("Args ~s", [Url, FromJid, ToJid, Subject, Body]),
     Res = spawn(?MODULE, async_response, []),
     ibrowse:send_req(Url,
                      [{"Content-Type","application/x-www-form-urlencoded"}],
                      post, 
-                     mochiweb_util:urlencode([{body, MessageText}]),
+                     mochiweb_util:urlencode([{from_jid, FromJid},
+                                              {to_jid, ToJid},
+                                              {subject, Subject},
+                                              {body, Body}]),
                      [{stream_to, Res}]),
     ok.
 
