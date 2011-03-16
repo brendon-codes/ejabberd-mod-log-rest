@@ -2,7 +2,7 @@
 # Set the ERL environnement variable if you want to use a specific erl
 
 ERL ?= $(shell which erl)
-EJABBERD_DEV ?= ../../core-modules/ejabberd-dev/trunk
+EJABBERD_DEV ?= /local/custom-build/ejabberd-build/ejabberd-modules/ejabberd-dev/trunk
 
 all:
 	$(ERL) -pa $(EJABBERD_DEV)/ebin -make

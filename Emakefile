@@ -1,6 +1,6 @@
-{'../../core-modules/ejabberd-dev/trunk/src/gen_mod',
-	[{outdir, "../../core-modules/ejabberd-dev/trunk/ebin"},
-	{i,"../../core-modules/ejabberd-dev/trunk/include"}]}.
+{'/local/custom-build/ejabberd-build/ejabberd-modules/ejabberd-dev/trunk/src/gen_mod',
+	[{outdir, "/local/custom-build/ejabberd-build/ejabberd-modules/ejabberd-dev/trunk/ebin"},
+	{i,"/local/custom-build/ejabberd-build/ejabberd-modules/ejabberd-dev/trunk/include"}]}.
 {'src/*',
 	[{outdir, "ebin"},
-	{i,"../../core-modules/ejabberd-dev/trunk/include"}]}.
+	{i,"/local/custom-build/ejabberd-build/ejabberd-modules/ejabberd-dev/trunk/include"}]}.
