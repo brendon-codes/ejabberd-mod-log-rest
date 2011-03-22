@@ -4,7 +4,7 @@
 ERL ?= $(shell which erl)
 EJABBERD_DEV ?= /local/custom-build/ejabberd-build/ejabberd-modules/ejabberd-dev/trunk
 
-all:
+all: clean
 	$(ERL) -pa $(EJABBERD_DEV)/ebin -make
 
 clean:
