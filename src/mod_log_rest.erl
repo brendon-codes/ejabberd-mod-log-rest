@@ -14,7 +14,8 @@
          stop/1,
          log_packet_send/3,
          log_packet_receive/4,
-         async_response/0
+         async_response/0,
+         timestamp/0
 ]).
 
 %-define(ejabberd_debug, true).
@@ -154,10 +155,11 @@ write_packet(From, To, Packet, Host) ->
                    [jlib:jid_to_string(From)]),
             ok;
         _ ->
+            Timestamp = timestamp(),
             Url = Config#config.url,
             FromJid = From#jid.luser++"@"++From#jid.lserver,
             ToJid = To#jid.luser++"@"++To#jid.lserver,
-            send_to_rest(Url, FromJid, ToJid, Subject, Body)
+            send_to_rest(Url, Timestamp, FromJid, ToJid, Subject, Body)
     end.
 
 %%
@@ -183,12 +185,13 @@ async_response() ->
 %%
 %% Send to rest
 %%
-send_to_rest(Url, FromJid, ToJid, Subject, Body) ->
+send_to_rest(Url, Timestamp, FromJid, ToJid, Subject, Body) ->
     Res = spawn(?MODULE, async_response, []),
     Params = mochiweb_util:urlencode([{body, Body},
                                       {from_jid, FromJid},
                                       {to_jid, ToJid},
-                                      {subject, Subject}]),
+                                      {subject, Subject},
+                                      {timestamp, Timestamp}]),
     ?DEBUG("Args ~p~n", [Params]),
     ibrowse:send_req(Url,
                      [{"Content-Type","application/x-www-form-urlencoded"}],
@@ -197,5 +200,14 @@ send_to_rest(Url, FromJid, ToJid, Subject, Body) ->
                      [{stream_to, Res}]),
     ok.
 
+%%
+%% Get a timestamp
+%%
+timestamp() ->
+    Fmt = "~4.10.0B-~2.10.0B-~2.10.0BT~2.10.0B:~2.10.0B:~2.10.0BZ",
+    {{Year, Month, Day}, {Hour, Min, Sec}} = calendar:universal_time(),
+    Date = iolist_to_binary(io_lib:format(Fmt,
+                                          [Year, Month, Day, Hour, Min, Sec])),
+    Date.
 
 
