@@ -71,13 +71,6 @@ Installation
     ./configure --prefix=/usr/local
     make
     make install
-    #
-    # At this point you will need to edit /usr/local/etc/ejabberd/ejabberd.cfg
-    # and Change the extauth_program to the path on your system
-    #
-    #   {auth_method, external}.
-    #   {extauth_program, "/PATH_TO_STOCKR/stockr-ejabberd-auth/stockr_ejabberd_auth/auth.py"}.
-    #
     useradd -M -r -s /bin/sh -d /usr/local/var/lib/ejabberd ejabberd
     mkdir /usr/local/var/run/ejabberd
     chown -R ejabberd:ejabberd \
