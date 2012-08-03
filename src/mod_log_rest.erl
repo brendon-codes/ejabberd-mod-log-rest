@@ -59,7 +59,7 @@ start_vhs(Host, [{_VHost, _Opts}| Tail]) ->
 %% Start VHost
 %%
 start_vh(Host, Opts) ->
-    Url = gen_mod:get_opt(path, Opts, ?DEFAULT_URL),
+    Url = gen_mod:get_opt(url, Opts, ?DEFAULT_URL),
     ejabberd_hooks:add(user_send_packet, Host, ?MODULE, log_packet_send, 55),
     ejabberd_hooks:add(user_receive_packet, Host, ?MODULE,
                        log_packet_receive, 55),
